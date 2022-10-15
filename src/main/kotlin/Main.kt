@@ -30,8 +30,6 @@ object Http {
 }
 
 fun main(args: Array<String>) {
-    val startTime = System.currentTimeMillis()
-
     if (args.isEmpty()) {
         System.err.println("error: missing arguments")
         println("usage: url-crawler URL")
@@ -80,10 +78,6 @@ fun main(args: Array<String>) {
     }
 
     Http.client.close()
-
-    val processTime = System.currentTimeMillis() - startTime
-    println()
-    println("Completed in $processTime ms")
 
     if (crawlerResult.failedUrls.isNotEmpty()) {
         exitProcess(1)
