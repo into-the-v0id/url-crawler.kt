@@ -31,7 +31,14 @@ object Http {
 fun main(args: Array<String>) {
     val startTime = System.currentTimeMillis()
 
-    if (args.size != 1) {
+    if (args.isEmpty()) {
+        System.err.println("error: missing arguments")
+        println("usage: url-crawler URL")
+        exitProcess(1)
+    }
+
+    if (args.size > 1) {
+        System.err.println("error: unexpected arguments")
         println("usage: url-crawler URL")
         exitProcess(1)
     }
