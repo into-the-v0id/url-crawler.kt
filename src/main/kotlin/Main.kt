@@ -20,6 +20,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.validator.routines.UrlValidator
 import kotlin.system.exitProcess
 
 object Http {
@@ -43,7 +44,16 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
 
-    val startUrl = Url(args.first())
+    val rawStartUrl = args.first()
+    val isValidStartUrl = UrlValidator(UrlValidator.ALLOW_LOCAL_URLS + UrlValidator.ALLOW_2_SLASHES)
+        .isValid(rawStartUrl)
+    if (! isValidStartUrl) {
+        System.err.println("error: invalid URL")
+        println("usage: url-crawler URL")
+        exitProcess(1)
+    }
+
+    val startUrl = Url(rawStartUrl)
 
     val crawlerResult = runBlocking {
         Spinner(LineDrawer("Scanning URLs"))

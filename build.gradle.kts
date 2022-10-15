@@ -17,6 +17,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.0.3")
     implementation("io.ktor:ktor-client-okhttp:2.0.3")
     implementation("org.jsoup:jsoup:1.15.2")
+    implementation("commons-validator:commons-validator:1.7")
 
     testImplementation(kotlin("test"))
 }
