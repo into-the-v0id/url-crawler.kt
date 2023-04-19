@@ -1,6 +1,5 @@
 package console.spinner.drawer
 
-import kotlinx.coroutines.*
 import java.io.PrintStream
 
 class LineDrawer(val label: String): Drawer {
@@ -27,5 +26,5 @@ class LineDrawer(val label: String): Drawer {
         }
     }
 
-    override suspend fun sleep() = delay(200)
+    override fun getSleepDurationInMilliSeconds(): Int = 200
 }

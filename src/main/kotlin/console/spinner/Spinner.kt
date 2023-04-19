@@ -16,7 +16,19 @@ class Spinner(private val drawer: Drawer) {
 
                 while (inProgress.get()) {
                     drawer.draw(oldOut)
-                    drawer.sleep()
+
+                    var sleepDuration = drawer.getSleepDurationInMilliSeconds()
+                    while (sleepDuration > 0 && inProgress.get()) {
+                        if (sleepDuration < 10) {
+                            delay(sleepDuration.toLong())
+                            sleepDuration = 0
+                            continue
+                        }
+
+                        delay(10)
+                        sleepDuration -= 10
+                    }
+
                     drawer.clear(oldOut)
                 }
             }
