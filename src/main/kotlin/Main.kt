@@ -16,6 +16,7 @@
 
 import console.spinner.Spinner
 import console.spinner.drawer.LineDrawer
+import console.spinner.drawer.TextDrawer
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.*
 import io.ktor.http.*
@@ -54,11 +55,14 @@ fun main(args: Array<String>) {
     val startUrl = Url(rawStartUrl)
 
     val crawlerResult = runBlocking {
-        Spinner(LineDrawer("Scanning URLs"))
-            .run {
-                UrlCrawler(Http.client)
-                    .crawlRecursive(startUrl)
-            }.also { println("✓ Scanning URLs") }
+        val drawer = if (Spinner.isFancyTerminal) { LineDrawer("Scanning URLs") }
+            else { TextDrawer("Scanning URLs") }
+        val spinner = Spinner(drawer)
+
+        spinner.run {
+            UrlCrawler(Http.client)
+                .crawlRecursive(startUrl)
+        }
     }
 
     if (crawlerResult.failedUrls.isNotEmpty()) {

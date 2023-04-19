@@ -6,16 +6,30 @@ import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Spinner(private val drawer: Drawer) {
-    suspend fun <T> run(block: suspend () -> T): T = withContext(Dispatchers.Default) {
+    companion object {
+        val isFancyTerminal = System.getenv("TERM")?.contains("xterm") ?: false
+    }
+
+    suspend fun <T> run(block: suspend () -> T): T {
+        try {
+            return process(block)
+                .also { success() }
+        } catch (e: Throwable) {
+            failure()
+            throw e
+        }
+    }
+
+    suspend fun <T> process(block: suspend () -> T): T = withContext(Dispatchers.Default) {
         hookOutputStream { oldOut, newOut ->
             val inProgress = AtomicBoolean(true)
 
             val spinnerJob = launch {
                 newOut.subscribeToBeforeWrite { drawer.clear(oldOut) }
-                newOut.subscribeToAfterWrite { drawer.draw(oldOut) }
+                newOut.subscribeToAfterWrite { drawer.drawInProgress(oldOut) }
 
                 while (inProgress.get()) {
-                    drawer.draw(oldOut)
+                    drawer.drawInProgress(oldOut)
 
                     var sleepDuration = drawer.getSleepDurationInMilliSeconds()
                     while (sleepDuration > 0 && inProgress.get()) {
@@ -42,7 +56,19 @@ class Spinner(private val drawer: Drawer) {
         }
     }
 
-    private suspend fun <R> hookOutputStream(block: suspend (oldOut: PrintStream, newOut: ObserverOutputStream) -> R): R {
+    fun success() {
+        drawer.drawSuccess(System.out)
+        System.out.appendLine()
+    }
+
+    fun failure() {
+        drawer.drawFailure(System.out)
+        System.out.appendLine()
+    }
+
+    private suspend fun <R> hookOutputStream(
+        block: suspend (oldOut: PrintStream, newOut: ObserverOutputStream) -> R
+    ): R {
         val oldOutputStream = System.out
         val newOutputStream = ObserverOutputStream(oldOutputStream)
         System.setOut(PrintStream(newOutputStream))

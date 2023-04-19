@@ -14,17 +14,25 @@ class LineDrawer(val label: String): Drawer {
         out.flush()
     }
 
-    override fun draw(out: PrintStream) {
+    private fun draw(out: PrintStream, prefix: String) {
         out.print("\u001B[s")
-        out.print("${states[index]} $label")
+        out.print("$prefix $label")
         out.print("\u001B[u")
         out.flush()
+    }
+
+    override fun drawInProgress(out: PrintStream) {
+        draw(out, prefix = states[index].toString())
 
         index += 1
         if (index >= states.size) {
             index = 0
         }
     }
+
+    override fun drawSuccess(out: PrintStream) = draw(out, prefix = "✓")
+
+    override fun drawFailure(out: PrintStream) = draw(out, prefix = "✗")
 
     override fun getSleepDurationInMilliSeconds(): Int = 200
 }
